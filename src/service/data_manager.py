@@ -9,16 +9,16 @@ class BaseManager:
 
     def __init__(self, file_path):
         self.file_path = file_path
-        self.data = self.load_data()
+        self.data = self._load_data()
 
-    def load_data(self):
+    def _load_data(self):
         if os.path.exists(self.file_path):
             with open(self.file_path, "r") as json_file:
                 return json.load(json_file)
         else:
             return {}
 
-    def save_data(self):
+    def _save_data(self):
         os.makedirs(os.path.dirname(self.file_path), exist_ok=True)
         with open(self.file_path, "w") as json_file:
             json.dump(self.data, json_file, indent=2)
@@ -26,7 +26,7 @@ class BaseManager:
     def add_entry(self, key, value):
         if key not in self.data:
             self.data[key] = value
-            self.save_data()
+            self._save_data()
             return True
         else:
             return False  # Entry with the same key already exists
@@ -34,7 +34,7 @@ class BaseManager:
     def remove_entry(self, key):
         if key in self.data:
             del self.data[key]
-            self.save_data()
+            self._save_data()
             return True
         else:
             return False  # Entry with the given key doesn't exist
@@ -42,10 +42,14 @@ class BaseManager:
     def update_entry(self, key, value):
         if key in self.data:
             self.data[key] = value
-            self.save_data()
+            self._save_data()
             return True
         else:
-            return False  # Entry with the given key doesn't exist
+            # Entry with the given key doesn't exist
+            return self.add_entry(key, value)
+
+    def get_entry(self, key):
+        return self.data.get(key, None)
 
 
 class ProfileManager(BaseManager):
@@ -62,7 +66,7 @@ class ProfileManager(BaseManager):
     def add_path_to_profile(self, profile_name, path):
         if profile_name in self.data and path not in self.data[profile_name]:
             self.data[profile_name].append(path)
-            self.save_data()
+            self._save_data()
             return True
         else:
             return False  # Profile with the given name doesn't exist
@@ -70,7 +74,7 @@ class ProfileManager(BaseManager):
     def remove_path_from_profile(self, profile_name, path):
         if profile_name in self.data and path in self.data[profile_name]:
             self.data[profile_name].remove(path)
-            self.save_data()
+            self._save_data()
             return True
         else:
             return False  # Profile or path doesn't exist

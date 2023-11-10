@@ -82,11 +82,26 @@ class TestDataManager(unittest.TestCase):
         self.assertNotIn("Setting 1", self.settings_manager.data)
 
     def test_update_setting(self):
-        self.assertFalse(self.settings_manager.update_entry("Setting 1", "value1"))
+        # Updating a non-existent setting should create a new one
+        self.assertTrue(self.settings_manager.update_entry("Setting 1", "value1"))
+        self.assertIn("Setting 1", self.settings_manager.data)
 
-        self.settings_manager.add_entry("Setting 1", "value1")
+        # Updating an existing setting should return True
         self.assertTrue(self.settings_manager.update_entry("Setting 1", "value2"))
         self.assertEqual(self.settings_manager.data["Setting 1"], "value2")
+
+    def test_get_existing_entry(self):
+        key = "TestKey"
+        value = "TestValue"
+        self.settings_manager.add_entry(key, value)
+
+        retrieved_value = self.settings_manager.get_entry(key)
+        self.assertEqual(retrieved_value, value)
+
+    def test_get_nonexistent_entry(self):
+        key = "NonexistentKey"
+        retrieved_value = self.settings_manager.get_entry(key)
+        self.assertIsNone(retrieved_value)
 
 
 if __name__ == '__main__':
