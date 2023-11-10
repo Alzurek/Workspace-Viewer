@@ -1,6 +1,7 @@
 import customtkinter
 from tkinter import filedialog as fd
 
+
 class Interface(customtkinter.CTk):
     selected_profile: str
 
