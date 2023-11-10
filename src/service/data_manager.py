@@ -2,8 +2,10 @@ import json
 import os
 
 
-# Import and export user settings and profiles via json files in the src/data folder
 class BaseManager:
+    """
+    Import and export user specific data via json files in the src/data folder
+    """
 
     def __init__(self, file_path):
         self.file_path = file_path
@@ -76,5 +78,5 @@ class ProfileManager(BaseManager):
 
 class SettingsManager(BaseManager):
 
-    def __init__(self, file_path="settings.json"):
+    def __init__(self, file_path="data/settings.json"):
         super().__init__(file_path)

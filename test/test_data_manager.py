@@ -1,8 +1,8 @@
 import unittest
 import os
 
-from src.data_manager import ProfileManager
-from src.data_manager import SettingsManager
+from src.service.data_manager import ProfileManager
+from src.service.data_manager import SettingsManager
 
 
 class TestDataManager(unittest.TestCase):
