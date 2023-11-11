@@ -12,3 +12,6 @@ button, all the applications associated with that profile will be launched.
 ### Why not just use Task Manager / Windows?
 Having different profiles allows you to choose what your PC is starting up as. Work? Gaming? Casual browsing?
 Controlling your profiles will ensure that no unneeded applications are started in the background unless you intend to use them.
+
+### Todo / Nice to have
+Selenium
