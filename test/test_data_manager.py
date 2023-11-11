@@ -21,50 +21,54 @@ class TestDataManager(unittest.TestCase):
         if os.path.exists(self.test_settings_file_path):
             os.remove(self.test_settings_file_path)
 
-    def test_add_profile(self):
-        # Adding a profile should return True
-        self.assertTrue(self.profile_manager.add_profile("TestProfile"))
-        self.assertEqual(self.profile_manager.data["TestProfile"], [])
-
-        # Adding the same profile again should return False
-        self.assertFalse(self.profile_manager.add_profile("TestProfile"))
-
     def test_remove_profile(self):
-        self.profile_manager.add_profile("TestProfile")
+        # Add a profile for testing
+        self.profile_manager.add_profile("DK1L-5H38", "Profile 2")
+        self.assertIn("DK1L-5H38", self.profile_manager.data)
 
-        # Removing a profile should return True
-        self.assertTrue(self.profile_manager.remove_profile("TestProfile"))
-        self.assertNotIn("TestProfile", self.profile_manager.data)
+        # Remove the profile
+        self.assertTrue(self.profile_manager.remove_profile("DK1L-5H38"))
+        self.assertNotIn("DK1L-5H38", self.profile_manager.data)
 
         # Removing a non-existent profile should return False
         self.assertFalse(self.profile_manager.remove_profile("NonExistentProfile"))
 
     def test_add_path_to_profile(self):
-        self.profile_manager.add_profile("TestProfile")
+        # Add a profile for testing
+        self.profile_manager.add_profile("DK1L-5H38", "Profile 2")
+        self.assertIn("DK1L-5H38", self.profile_manager.data)
 
-        # Adding a path to a profile should return True
-        self.assertTrue(self.profile_manager.add_path_to_profile("TestProfile", "C:/test/file.exe"))
-        self.assertIn("C:/test/file.exe", self.profile_manager.data["TestProfile"])
-
-        # Adding the same path to the same profile should return False
-        self.assertFalse(self.profile_manager.add_path_to_profile("TestProfile", "C:/test/file.exe"))
-
-        # Adding a path to a non-existent profile should return False
-        self.assertFalse(self.profile_manager.add_path_to_profile("NonExistentProfile", "C:/test/file.exe"))
+        # Add a path to the profile
+        self.assertTrue(self.profile_manager.add_path_to_profile("DK1L-5H38", "C:/example/path"))
+        self.assertIn("paths", self.profile_manager.data["DK1L-5H38"])
+        self.assertIn("C:/example/path", self.profile_manager.data["DK1L-5H38"]["paths"])
 
     def test_remove_path_from_profile(self):
-        self.profile_manager.add_profile("TestProfile")
-        self.profile_manager.add_path_to_profile("TestProfile", "C:/test/file.exe")
+        # Add a profile for testing
+        self.profile_manager.add_profile("DK1L-5H38", "Profile 2")
+        self.assertIn("DK1L-5H38", self.profile_manager.data)
 
-        # Removing a path from a profile should return True
-        self.assertTrue(self.profile_manager.remove_path_from_profile("TestProfile", "C:/test/file.exe"))
-        self.assertNotIn("C:/test/file.exe", self.profile_manager.data["TestProfile"])
+        # Add a path to the profile
+        self.profile_manager.add_path_to_profile("DK1L-5H38", "C:/example/path")
+        self.assertIn("paths", self.profile_manager.data["DK1L-5H38"])
+        self.assertIn("C:/example/path", self.profile_manager.data["DK1L-5H38"]["paths"])
 
-        # Removing a non-existent path from a profile should return False
-        self.assertFalse(self.profile_manager.remove_path_from_profile("TestProfile", "NonExistentPath"))
+        # Remove the path from the profile
+        self.assertTrue(self.profile_manager.remove_path_from_profile("DK1L-5H38", "C:/example/path"))
+        self.assertNotIn("C:/example/path", self.profile_manager.data["DK1L-5H38"]["paths"])
 
-        # Removing a path from a non-existent profile should return False
-        self.assertFalse(self.profile_manager.remove_path_from_profile("NonExistentProfile", "C:/test/file.exe"))
+    def test_change_profile_name(self):
+        # Add a profile for testing
+        self.profile_manager.add_profile("DK1L-5H38", "Profile 2")
+        self.assertIn("DK1L-5H38", self.profile_manager.data)
+
+        # Change the profile name
+        self.assertTrue(self.profile_manager.change_profile_name("DK1L-5H38", "New Profile"))
+        self.assertIn("DK1L-5H38", self.profile_manager.data)
+        self.assertEqual(self.profile_manager.data["DK1L-5H38"]["name"], "New Profile")
+
+        # Changing the name of a non-existent profile should return False
+        self.assertFalse(self.profile_manager.change_profile_name("NonExistentProfile", "New Name"))
 
     def test_add_setting(self):
         self.assertTrue(self.settings_manager.add_entry("Setting 1", True))

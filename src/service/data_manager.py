@@ -57,27 +57,36 @@ class ProfileManager(BaseManager):
     def __init__(self, file_path="data/profiles.json"):
         super().__init__(file_path)
 
-    def add_profile(self, profile_name):
-        return self.add_entry(key=profile_name, value=[])
+    def add_profile(self, profile_id, profile_name):
+        profile_data = {"name": profile_name, "paths": []}
+        return self.add_entry(key=profile_id, value=profile_data)
 
-    def remove_profile(self, profile_name):
-        return self.remove_entry(key=profile_name)
+    def remove_profile(self, profile_id):
+        return self.remove_entry(key=profile_id)
 
-    def add_path_to_profile(self, profile_name, path):
-        if profile_name in self.data and path not in self.data[profile_name]:
-            self.data[profile_name].append(path)
+    def add_path_to_profile(self, profile_id, path):
+        if profile_id in self.data:
+            self.data[profile_id]["paths"].append(path)
             self._save_data()
             return True
         else:
-            return False  # Profile with the given name doesn't exist
+            return False  # Profile with the given ID doesn't exist
 
-    def remove_path_from_profile(self, profile_name, path):
-        if profile_name in self.data and path in self.data[profile_name]:
-            self.data[profile_name].remove(path)
+    def remove_path_from_profile(self, profile_id, path):
+        if profile_id in self.data:
+            self.data[profile_id]["paths"].remove(path)
             self._save_data()
             return True
         else:
-            return False  # Profile or path doesn't exist
+            return False  # Profile with the given ID doesn't exist
+
+    def change_profile_name(self, profile_id, new_name):
+        if profile_id in self.data:
+            self.data[profile_id]["name"] = new_name
+            self._save_data()
+            return True
+        else:
+            return False  # Profile with the given ID doesn't exist
 
 
 class SettingsManager(BaseManager):
