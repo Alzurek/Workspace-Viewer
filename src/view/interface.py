@@ -100,8 +100,7 @@ class Interface(customtkinter.CTk):
 
     def _create_profile(self):
         print(f"create profile")
-        profile_name = self._popup_input("Enter Profile Name", "Profile Creation", self.validate_new_profile_name,
-                                         "Profile name in use, enter a new one")
+        profile_name = self._popup_input("Enter Profile Name", "Profile Creation", self.validate_new_profile_name)
         if profile_name is None:
             return  # Input cancelled
         if DEFAULT_PROFILE in self.profile_name_list:
@@ -118,14 +117,16 @@ class Interface(customtkinter.CTk):
         self.profile_menu = customtkinter.CTkOptionMenu(self.sidebar, dynamic_resizing=False,
                                                         values=self.profile_name_list, command=self._select_profile)
         self.profile_menu.grid(row=2, column=0, padx=20, pady=(150, 10))
-        self.profile_menu.set(self.profiles.get_profile_by_id(self.current_profile_id))
+        if self.current_profile_id:
+            self.profile_menu.set(self.profiles.get_profile_by_id(self.current_profile_id))
 
     def _refresh_path_list(self):
         for child in self.application_list_frame.winfo_children():
             child.destroy()
         self.application_list = []
-        for path in self.profiles.get_paths_for_profile(self.current_profile_id):
-            self._add_to_application_list(path)
+        if self.current_profile_id:
+            for path in self.profiles.get_paths_for_profile(self.current_profile_id):
+                self._add_to_application_list(path)
 
     def _set_current_profile(self, current_profile):
         self.current_profile_id = current_profile
@@ -145,8 +146,7 @@ class Interface(customtkinter.CTk):
         label.grid(row=len(self.application_list) - 1, column=0, padx=10, pady=(0, 10), sticky="w")
 
     def _edit_profile(self):
-        new_name = self._popup_input("Enter a New Profile Name", "Edit Profile", self.validate_new_profile_name,
-                                     "Profile name in use, enter a new one")
+        new_name = self._popup_input("Enter a New Profile Name", "Edit Profile", self.validate_new_profile_name)
         if new_name is None:
             return
         self._replace_value_in_profile_list(self.current_profile_id, new_name)
@@ -170,7 +170,7 @@ class Interface(customtkinter.CTk):
 
         return f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}+{window_x}+{window_y}"
 
-    def _popup_input(self, prompt, title, validation_func=None, error=""):
+    def _popup_input(self, prompt, title, validation_func):
         text = prompt
         text_color = None
         x, y = self.winfo_pointerxy()
@@ -178,17 +178,45 @@ class Interface(customtkinter.CTk):
         x_offset, y_offset = map(int, position.split("+"))
         dialog_x = max(0, x_offset + (x - x_offset) * 2)
         dialog_y = max(0, y_offset + (y - y_offset) // 1.5)
+        dialog_geometry = f"300x150+{dialog_x}+{dialog_y}"
         while True:
-            dialog = customtkinter.CTkInputDialog(text=text, title=title, text_color=text_color)
-            print(f"300x150+{dialog_x}+{dialog_y}")
-            dialog.geometry(f"300x150+{dialog_x}+{dialog_y}")
-            value = dialog.get_input()
-            if validation_func is not None and not validation_func(value):
-                print("Show invalid input")
+            # TODO: Remove the try-catch block when a new version of customtkinter is released,
+            # and the text_color issue is resolved.
+            # in the meantime, line 34 of `venv/site-packages/customtkinter/windows/ctk_input_dialog.py`
+            # has a typo at `button_hover_cover`, it should be `text_color`
+            try:
+                # Try to create the CTkInputDialog with text, title, and text_color
+                self.dialog = customtkinter.CTkInputDialog(text=text, title=title, text_color=text_color)
+            except Exception as e:
+                if 'color is None' in e.args[0] and text_color is not None:
+                    print("There was an error due to a typo in source code, "
+                          "there is a pull request on the git repo for this")
+                else:
+                    print("Unknown error")
+
+                child_list = []
+                for child_name, child in self.children.items():
+                    if isinstance(child, customtkinter.CTkInputDialog):
+                        child_list.append(child)
+                for child in child_list:
+                    child.destroy()
+                print("Attempting to print without `text_color`")
+                self.dialog = customtkinter.CTkInputDialog(text=text, title=title)
+            self.dialog.geometry(dialog_geometry)
+            self.dialog.geometry(dialog_geometry)
+            value = self.dialog.get_input()
+            if value is None:
+                return None
+            error = validation_func(value)
+            if error:
                 text_color = "brown3"
                 text = error
             else:
                 return value
 
     def validate_new_profile_name(self, profile_name):
-        return profile_name not in self.profile_name_list
+        if profile_name in self.profile_name_list:
+            return "Profile name in use, enter a new one"
+        if profile_name == "":
+            return "Profile names cannot be empty"
+        return None
