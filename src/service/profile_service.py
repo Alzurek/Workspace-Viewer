@@ -1,10 +1,20 @@
 from src.service.data_manager import ProfileManager
+import subprocess
 
 
 class ProfileService:
 
     def __init__(self):
         self.profiles = ProfileManager()
+
+    @staticmethod
+    def launch_all_paths_in_profile(path_list: list):
+        for path in path_list:
+            try:
+                subprocess.Popen([path])
+            except subprocess.CalledProcessError as e:
+                print(f"Error: {e}")
+        pass
 
     def get_all_profiles(self):
         return self.profiles.data

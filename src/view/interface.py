@@ -5,11 +5,20 @@ from src.service.settings_service import SettingsService
 from src.service.profile_service import ProfileService
 from PIL import Image
 import uuid
+import logging
 
 WINDOW_HEIGHT = 550
 WINDOW_WIDTH = 900
 DEFAULT_APPEARANCE = "Dark"
 DEFAULT_PROFILE = "No Profiles"
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] [%(name)s] %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
+logger = logging.getLogger("Interface")
 
 
 class Interface(customtkinter.CTk):
@@ -85,33 +94,49 @@ class Interface(customtkinter.CTk):
         self._refresh_path_list()
 
     def _select_profile(self, new_profile: str):
-        self.current_profile_id = self.profile_name_id_mapping[new_profile]
-        self.settings.update_current_user_profile(self.current_profile_id)
-        self._refresh_path_list()
-        print("Updated profile")
+        try:
+            new_profile_id = self.profile_name_id_mapping[new_profile]
+            if new_profile_id == self.current_profile_id:
+                logger.info("No need for update, same profile selected")
+                return
+            logger.info(msg="Updating profile")
+            self.current_profile_id = new_profile_id
+            self.settings.update_current_user_profile(self.current_profile_id)
+            self._refresh_path_list()
+            logger.info("Successfully updated profile")
+        except Exception as e:
+            logger.error(f"Error updating profile: {e}")
 
     def _change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)
         self.settings.update_user_app_appearance(new_appearance_mode)
 
     def _launch_profile(self):
-        # TODO launch profile
-        print(f"Launching profile {self.profiles.get_profile_by_id(self.current_profile_id)}")
+        try:
+            logger.info(f"Launching profile {self.profiles.get_profile_by_id(self.current_profile_id)}")
+            self.profiles.launch_all_paths_in_profile(self.application_list)
+            logger.info("Successfully launched profile")
+        except Exception as e:
+            logger.error(f"Error launching profile: {e}")
 
     def _create_profile(self):
-        print(f"create profile")
-        profile_name = self._popup_input("Enter Profile Name", "Profile Creation", self.validate_new_profile_name)
-        if profile_name is None:
-            return  # Input cancelled
-        if DEFAULT_PROFILE in self.profile_name_list:
-            self.profile_name_list.remove(DEFAULT_PROFILE)
-        self.profile_name_list.append(profile_name)
-        uid = str(uuid.uuid4())
-        self.profiles.create_profile(uid, profile_name)
-        self.profile_name_id_mapping[profile_name] = uid
-        self._set_current_profile(uid)
-        self._refresh_profile_list()
-        self._refresh_path_list()
+        try:
+            logger.info("Creating profile")
+            profile_name = self._popup_input("Enter Profile Name", "Profile Creation", self.validate_new_profile_name)
+            if profile_name is None:
+                return  # Input cancelled
+            if DEFAULT_PROFILE in self.profile_name_list:
+                self.profile_name_list.remove(DEFAULT_PROFILE)
+            self.profile_name_list.append(profile_name)
+            uid = str(uuid.uuid4())
+            self.profiles.create_profile(uid, profile_name)
+            self.profile_name_id_mapping[profile_name] = uid
+            self._set_current_profile(uid)
+            self._refresh_profile_list()
+            self._refresh_path_list()
+            logger.info("Successfully created profile")
+        except Exception as e:
+            logger.error(f"Error creating profile: {e}")
 
     def _refresh_profile_list(self):
         self.profile_menu = customtkinter.CTkOptionMenu(self.sidebar, dynamic_resizing=False,
@@ -133,33 +158,49 @@ class Interface(customtkinter.CTk):
         self.settings.update_current_user_profile(current_profile)
 
     def _open_file_dialog(self):
-        added_file = fd.askopenfilename()
-        self._add_to_application_list(added_file)
-        self.profiles.add_path_to_profile(self.current_profile_id, added_file)
+        added_file = fd.askopenfilename(filetypes=[("executable files", ".exe"), ("All Files", ".*")])
+        logger.info("Adding file to list")
+        if self._add_to_application_list(added_file):
+            logger.info("Successfully added file to list")
+            self.profiles.add_path_to_profile(self.current_profile_id, added_file)
 
     def _add_to_application_list(self, added_file):
-        if added_file in self.application_list:
-            print("File already in list")
-            return
-        self.application_list.append(added_file)
-        label = customtkinter.CTkLabel(master=self.application_list_frame, text=added_file)
-        label.grid(row=len(self.application_list) - 1, column=0, padx=10, pady=(0, 10), sticky="w")
+        try:
+            if added_file in self.application_list:
+                logger.warning("File already in list")
+                return False
+            if added_file == "":
+                logger.warning("Selection canceled")
+                return False
+            self.application_list.append(added_file)
+            label = customtkinter.CTkLabel(master=self.application_list_frame, text=added_file)
+            label.grid(row=len(self.application_list) - 1, column=0, padx=10, pady=(0, 10), sticky="w")
+        except Exception as e:
+            logger.error(f"Error adding application to list: {e}")
+            return False
+        return True
 
     def _edit_profile(self):
-        new_name = self._popup_input("Enter a New Profile Name", "Edit Profile", self.validate_new_profile_name)
-        if new_name is None:
-            return
-        self._replace_value_in_profile_list(self.current_profile_id, new_name)
-        self.profiles.change_profile_name(self.current_profile_id, new_name)
-        self.profile_name_list = self.profiles.get_all_profile_names()
-        self._refresh_profile_list()
+        try:
+            logger.info("Editing profile")
+            new_name = self._popup_input("Enter a New Profile Name", "Edit Profile", self.validate_new_profile_name)
+            if new_name is None:
+                return
+            self._replace_value_in_profile_list(self.current_profile_id, new_name)
+            self.profiles.change_profile_name(self.current_profile_id, new_name)
+            self.profile_name_list = self.profiles.get_all_profile_names()
+            self._refresh_profile_list()
+            logger.info("Successfully edited profile")
+        except Exception as e:
+            logger.error(f"Error editing profile: {e}")
 
     def _replace_value_in_profile_list(self, old_value, new_value):
         for i in range(len(self.profile_name_list)):
             if self.profile_name_list[i] == old_value:
                 self.profile_name_list[i] = new_value
 
-    def _get_window_geometry(self):
+    @staticmethod
+    def _get_window_geometry():
         root = tk.Tk()
         screen_width = root.winfo_screenwidth()
         screen_height = root.winfo_screenheight()
@@ -189,10 +230,10 @@ class Interface(customtkinter.CTk):
                 self.dialog = customtkinter.CTkInputDialog(text=text, title=title, text_color=text_color)
             except Exception as e:
                 if 'color is None' in e.args[0] and text_color is not None:
-                    print("There was an error due to a typo in source code, "
-                          "there is a pull request on the git repo for this")
+                    logging.error("There was an error due to a typo in source code, "
+                                      "there is a pull request on the git repo for this")
                 else:
-                    print("Unknown error")
+                    logging.error("Unknown error")
 
                 child_list = []
                 for child_name, child in self.children.items():
@@ -200,7 +241,7 @@ class Interface(customtkinter.CTk):
                         child_list.append(child)
                 for child in child_list:
                     child.destroy()
-                print("Attempting to print without `text_color`")
+                logger.info("Attempting to print without `text_color`")
                 self.dialog = customtkinter.CTkInputDialog(text=text, title=title)
             self.dialog.geometry(dialog_geometry)
             self.dialog.geometry(dialog_geometry)
@@ -209,6 +250,7 @@ class Interface(customtkinter.CTk):
                 return None
             error = validation_func(value)
             if error:
+                logger.warning("New profile name invalid")
                 text_color = "brown3"
                 text = error
             else:
@@ -219,4 +261,5 @@ class Interface(customtkinter.CTk):
             return "Profile name in use, enter a new one"
         if profile_name == "":
             return "Profile names cannot be empty"
+        logger.info("New profile name valid")
         return None
