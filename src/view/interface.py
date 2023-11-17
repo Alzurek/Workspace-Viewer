@@ -154,8 +154,16 @@ class Interface(customtkinter.CTk):
                 self._add_to_application_list(path)
 
     def _set_current_profile(self, current_profile):
-        self.current_profile_id = current_profile
-        self.settings.update_current_user_profile(current_profile)
+        if current_profile in self.profiles.get_all_profiles():
+            self.current_profile_id = self.settings.update_current_user_profile(current_profile)
+        else:
+            first_key = next(iter(self.profiles.get_all_profiles()), None)
+            if first_key is None:
+                first_key = ""
+
+            self.current_profile_id = first_key
+            self.settings.update_current_user_profile(first_key)
+
 
     def _open_file_dialog(self):
         added_file = fd.askopenfilename(filetypes=[("executable files", ".exe"), ("All Files", ".*")])
