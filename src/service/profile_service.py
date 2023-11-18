@@ -46,3 +46,6 @@ class ProfileService:
 
     def get_profile_by_id(self, profile_id):
         return self.profiles.data[profile_id]["name"]
+
+    def remove_path_from_profile(self, profile_id, path):
+        self.profiles.remove_path_from_profile(profile_id, path)

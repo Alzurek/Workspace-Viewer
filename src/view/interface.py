@@ -27,8 +27,10 @@ class Interface(customtkinter.CTk):
         super().__init__()
         window_geometry = self._get_window_geometry()
 
-        # Settings initialization
+        self.profiles = ProfileService()
         self.settings = SettingsService()
+
+        # Settings initialization
         self.current_appearance = self.settings.get_user_app_appearance()
         if self.current_appearance is None:
             self.current_appearance = DEFAULT_APPEARANCE
@@ -37,7 +39,6 @@ class Interface(customtkinter.CTk):
         self._set_current_profile(self.settings.get_current_user_profile())
 
         # Profiles initialization
-        self.profiles = ProfileService()
         self.profile_name_list = self.profiles.get_all_profile_names()
         if len(self.profile_name_list) == 0:
             self.profile_name_list.append(DEFAULT_PROFILE)
@@ -155,7 +156,8 @@ class Interface(customtkinter.CTk):
 
     def _set_current_profile(self, current_profile):
         if current_profile in self.profiles.get_all_profiles():
-            self.current_profile_id = self.settings.update_current_user_profile(current_profile)
+            self.settings.update_current_user_profile(current_profile)
+            self.current_profile_id = current_profile
         else:
             first_key = next(iter(self.profiles.get_all_profiles()), None)
             if first_key is None:
@@ -163,7 +165,6 @@ class Interface(customtkinter.CTk):
 
             self.current_profile_id = first_key
             self.settings.update_current_user_profile(first_key)
-
 
     def _open_file_dialog(self):
         added_file = fd.askopenfilename(filetypes=[("executable files", ".exe"), ("All Files", ".*")])
@@ -181,12 +182,19 @@ class Interface(customtkinter.CTk):
                 logger.warning("Selection canceled")
                 return False
             self.application_list.append(added_file)
-            label = customtkinter.CTkLabel(master=self.application_list_frame, text=added_file)
-            label.grid(row=len(self.application_list) - 1, column=0, padx=10, pady=(0, 10), sticky="w")
+            label = PathRow(
+                executable_path=added_file,
+                delete_callback=self.delete_path,
+                master=self.application_list_frame)
+            label.grid(row=len(self.application_list) - 1, column=0, padx=10, pady=(0, 10), sticky="news")
         except Exception as e:
             logger.error(f"Error adding application to list: {e}")
             return False
         return True
+
+    def delete_path(self, path):
+        self.profiles.remove_path_from_profile(self.current_profile_id, path)
+        self._refresh_path_list()
 
     def _edit_profile(self):
         try:
@@ -271,3 +279,20 @@ class Interface(customtkinter.CTk):
             return "Profile names cannot be empty"
         logger.info("New profile name valid")
         return None
+
+
+class PathRow(customtkinter.CTkFrame):
+    def __init__(self, executable_path: str, delete_callback, master: any, **kwargs):
+        super().__init__(master, **kwargs)
+
+        split_path = executable_path.split('/')
+        display_path = f"{split_path[0]}/.../{split_path[-1]}"
+
+        delete_button = customtkinter.CTkButton(self, text="Delete", command=lambda: delete_callback(executable_path),
+                                                fg_color="#D8524B", width=75)
+        delete_button.grid(row=0, column=0)
+
+        text_label = customtkinter.CTkLabel(self, text=display_path, anchor="w")
+        text_label.grid(row=0, column=1, padx=15, sticky="news")
+
+        self.grid_columnconfigure(1, weight=2)
