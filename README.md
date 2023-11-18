@@ -24,4 +24,5 @@ Having different profiles allows you to choose what your PC is starting up as. W
 Controlling your profiles will ensure that no unneeded applications are started in the background unless you intend to use them.
 
 ### Todo / Nice to have
+Generalized support for files that are not `.exe` files
 Selenium
