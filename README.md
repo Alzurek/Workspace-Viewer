@@ -23,6 +23,8 @@ button, all the applications associated with that profile will be launched.
 Having different profiles allows you to choose what your PC is starting up as. Work? Gaming? Casual browsing?
 Controlling your profiles will ensure that no unneeded applications are started in the background unless you intend to use them.
 
-### Todo / Nice to have
+### Todo / Ideas / Nice to have
+Open on Startup
+Select a profile to launch on startup
 Generalized support for files that are not `.exe` files
 Selenium

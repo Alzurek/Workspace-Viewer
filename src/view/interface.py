@@ -6,6 +6,7 @@ from src.service.profile_service import ProfileService
 from PIL import Image
 import uuid
 import logging
+import os
 
 WINDOW_HEIGHT = 550
 WINDOW_WIDTH = 900
@@ -19,6 +20,10 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger("Interface")
+
+icon_path = os.path.join(r'C:\Code\Coding\Hobby Projects\Workspace-Viewer\resource', 'icon.ico')
+logo_path = os.path.join(r'C:\Code\Coding\Hobby Projects\Workspace-Viewer\resource', 'logo.ico')
+logo_light_path = os.path.join(r'C:\Code\Coding\Hobby Projects\Workspace-Viewer\resource', 'logo_light.ico')
 
 
 class Interface(customtkinter.CTk):
@@ -48,7 +53,7 @@ class Interface(customtkinter.CTk):
             self.profile_name_id_mapping[profile_data["name"]] = profile_id
 
         self.title("Application Launcher")
-        self.wm_iconbitmap('../resource/icon.ico')
+        self.wm_iconbitmap(icon_path)
         self.grid_columnconfigure((1, 2), weight=1)
         self.grid_rowconfigure(1, weight=1)
 
@@ -58,8 +63,8 @@ class Interface(customtkinter.CTk):
         self.sidebar.grid_rowconfigure(3, weight=1)
 
         # Profile Select
-        self.logo_image = customtkinter.CTkImage(light_image=Image.open("../resource/logo_light.ico"),
-                                                 dark_image=Image.open("../resource/logo.ico"), size=(100, 100))
+        self.logo_image = customtkinter.CTkImage(light_image=Image.open(logo_light_path),
+                                                 dark_image=Image.open(logo_path), size=(100, 100))
 
         self.title_label = customtkinter.CTkLabel(self.sidebar, text="Application Launcher", image=self.logo_image,
                                                   compound="top", font=customtkinter.CTkFont(size=20, weight="bold"))
@@ -69,7 +74,8 @@ class Interface(customtkinter.CTk):
                                                              command=self._create_profile)
         self.create_profile_button.grid(row=2, column=0, padx=20, pady=10)
 
-        self.edit_profile_button = customtkinter.CTkButton(self.sidebar, text="Edit Profile", command=self._edit_profile)
+        self.edit_profile_button = customtkinter.CTkButton(self.sidebar, text="Edit Profile",
+                                                           command=self._edit_profile)
         self.edit_profile_button.grid(row=2, column=0, padx=20, pady=(100, 30))
 
         self._refresh_profile_list()
@@ -247,7 +253,7 @@ class Interface(customtkinter.CTk):
             except Exception as e:
                 if 'color is None' in e.args[0] and text_color is not None:
                     logging.error("There was an error due to a typo in source code, "
-                                      "there is a pull request on the git repo for this")
+                                  "there is a pull request on the git repo for this")
                 else:
                     logging.error("Unknown error")
 
