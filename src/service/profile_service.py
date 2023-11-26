@@ -1,5 +1,6 @@
 from src.service.data_manager import ProfileManager
 import subprocess
+import os
 
 
 class ProfileService:
@@ -11,7 +12,12 @@ class ProfileService:
     def launch_all_paths_in_profile(path_list: list):
         for path in path_list:
             try:
-                subprocess.Popen([path])
+                _, file_extension = os.path.splitext(path)
+                match file_extension:
+                    case 'bat':
+                        subprocess.run(path, shell=True)
+                    case _:
+                        subprocess.Popen([path])
             except subprocess.CalledProcessError as e:
                 print(f"Error: {e}")
         pass
