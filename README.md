@@ -14,6 +14,11 @@ pip3 install pipenv
 pipenv install
 ``
 
+### Creating .exe
+``
+pyinstaller --name="Application Viewer" --onefile --noconsole --icon=.\resource\logo.ico main.py
+``
+
 # Description
 The application gives the user the ability to create profiles which each contain a set of applications.
 These profiles can have applications added and removed from them, and when the user presses the "Launch Profile"
@@ -23,6 +28,8 @@ button, all the applications associated with that profile will be launched.
 Having different profiles allows you to choose what your PC is starting up as. Work? Gaming? Casual browsing?
 Controlling your profiles will ensure that no unneeded applications are started in the background unless you intend to use them.
 
-### Todo / Nice to have
+### Todo / Ideas / Nice to have
+Open on Startup
+Select a profile to launch on startup
 Generalized support for files that are not `.exe` files
 Selenium
