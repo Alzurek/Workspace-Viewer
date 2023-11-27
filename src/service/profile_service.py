@@ -13,11 +13,10 @@ class ProfileService:
         for path in path_list:
             try:
                 _, file_extension = os.path.splitext(path)
-                match file_extension:
-                    case 'bat':
-                        subprocess.run(path, shell=True)
-                    case _:
-                        subprocess.Popen([path])
+                if file_extension == '.rdp' or file_extension == '.bat':
+                    subprocess.run(path, shell=True)
+                else:
+                    subprocess.Popen([path])
             except subprocess.CalledProcessError as e:
                 print(f"Error: {e}")
         pass

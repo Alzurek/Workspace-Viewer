@@ -14,6 +14,11 @@ pip3 install pipenv
 pipenv install
 ``
 
+### Creating .exe
+``
+pyinstaller --name="Application Viewer" --onefile --noconsole --icon=.\resource\logo.ico main.py
+``
+
 # Description
 The application gives the user the ability to create profiles which each contain a set of applications.
 These profiles can have applications added and removed from them, and when the user presses the "Launch Profile"
