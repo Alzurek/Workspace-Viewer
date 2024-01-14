@@ -160,11 +160,3 @@ cython_debug/
 #.idea/
 src/data/
 data/settings.json
-.idea
-src
-test
-main.py
-Pipfile
-Pipfile.lock
-README.md
-Workspace-Viewer.iml
