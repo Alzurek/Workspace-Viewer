@@ -1,0 +1,33 @@
+name: Pytest
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    name: Testing
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.11"
+    
+    - name: Install pipenv
+      run: |
+        python -m pip install --upgrade pip
+        pip install pipenv
+    
+    - name: Install dependencies
+      run: |
+        pipenv --python 3.11
+        pipenv run pip install customtkinter packaging pillow
+        pipenv run pip install pytest
+    
+    - name: Run tests
+      run: |
+        pipenv run python -m pytest test/ -v --no-header 
