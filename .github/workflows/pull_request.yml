@@ -23,8 +23,9 @@ jobs:
     
     - name: Install dependencies
       run: |
-        pipenv install --dev
-        pipenv install pylint pytest --dev
+        pipenv --python 3.7
+        pipenv run pip install customtkinter packaging pillow
+        pipenv run pip install pylint pytest
         pipenv run pip list
     
     - name: Run pylint
