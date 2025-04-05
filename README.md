@@ -19,6 +19,16 @@ pipenv install
 pyinstaller --name="Application Viewer" --onefile --noconsole --icon=.\resource\logo.ico main.py
 ``
 
+### Linting
+``
+pylint src
+``
+
+### Testing
+``
+pytest
+``
+
 # Description
 The application gives the user the ability to create profiles which each contain a set of applications.
 These profiles can have applications added and removed from them, and when the user presses the "Launch Profile"

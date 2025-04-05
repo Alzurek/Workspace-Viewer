@@ -9,6 +9,8 @@ packaging = "*"
 pillow = "*"
 
 [dev-packages]
+pytest = "*"
+pylint = "*"
 
 [requires]
 python_version = "3.7"
