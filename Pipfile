@@ -10,7 +10,7 @@ pillow = "*"
 
 [dev-packages]
 pytest = "*"
-pylint = "==3.3.1"
+pylint = "*"
 
 [requires]
 python_version = "3.11"

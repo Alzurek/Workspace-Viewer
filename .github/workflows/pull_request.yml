@@ -25,7 +25,7 @@ jobs:
       run: |
         pipenv --python 3.11
         pipenv run pip install customtkinter packaging pillow
-        pipenv run pip install pylint==3.3.1 pytest
+        pipenv run pip install pylint pytest
     
     - name: Run pylint
       run: |
