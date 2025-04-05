@@ -11,10 +11,10 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - name: Set up Python 3.7
+    - name: Set up Python 3.11
       uses: actions/setup-python@v3
       with:
-        python-version: "3.7"
+        python-version: "3.11"
     
     - name: Install pipenv
       run: |
@@ -23,7 +23,7 @@ jobs:
     
     - name: Install dependencies
       run: |
-        pipenv --python 3.7
+        pipenv --python 3.11
         pipenv run pip install customtkinter packaging pillow
         pipenv run pip install pylint==3.3.1 pytest
     
