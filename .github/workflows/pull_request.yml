@@ -24,6 +24,7 @@ jobs:
     - name: Install dependencies
       run: |
         pipenv install --dev
+        pipenv install pylint pytest --dev
         pipenv run pip list
     
     - name: Run pylint
