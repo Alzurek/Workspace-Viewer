@@ -1,4 +1,7 @@
 # Workspace-Viewer
+[![Linting](https://github.com/Alzurek/Workspace-Viewer/actions/workflows/pull_request.yml/badge.svg?event=pull_request&label=Linting)](https://github.com/Alzurek/Workspace-Viewer/actions/workflows/pull_request.yml)
+[![Tests](https://github.com/Alzurek/Workspace-Viewer/actions/workflows/pull_request.yml/badge.svg?event=pull_request&label=Tests)](https://github.com/Alzurek/Workspace-Viewer/actions/workflows/pull_request.yml)
+
 An automation script for launching a predefined set of computer applications on Windows.
 
 # How to Use
