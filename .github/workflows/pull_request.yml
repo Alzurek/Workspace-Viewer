@@ -24,10 +24,11 @@ jobs:
     - name: Install dependencies
       run: |
         pipenv install --dev
+        pipenv run pip list
     
     - name: Run pylint
       run: |
-        pipenv run pylint --rcfile=.pylintrc src --fail-under=10.0
+        pipenv run python -m pylint --rcfile=.pylintrc src --fail-under=10.0
     
     - name: Run tests
       run: |
