@@ -128,3 +128,11 @@ class TestDataManager(unittest.TestCase):
         key = "NonexistentKey"
         retrieved_value = self.settings_manager.get_entry(key)
         self.assertIsNone(retrieved_value)
+
+    def test_add_path_to_nonexistent_profile(self):
+        """Test adding a path to a non-existent profile."""
+        self.assertFalse(self.profile_manager.add_path_to_profile("NonExistentProfile", self.TEST_PATH))
+
+    def test_remove_path_from_nonexistent_profile(self):
+        """Test removing a path from a non-existent profile."""
+        self.assertFalse(self.profile_manager.remove_path_from_profile("NonExistentProfile", self.TEST_PATH))

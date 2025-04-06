@@ -10,6 +10,7 @@ pillow = "*"
 
 [dev-packages]
 pytest = "*"
+pytest-cov = "*"
 pylint = "*"
 
 [requires]

@@ -4,8 +4,10 @@ import unittest
 import os
 import tempfile
 import json
+from unittest.mock import patch, MagicMock
 from src.service.profile_service import ProfileService
 from src.service.data_manager import ProfileManager
+import subprocess
 
 
 class TestProfileService(unittest.TestCase):
@@ -149,4 +151,58 @@ class TestProfileService(unittest.TestCase):
         # Try to initialize with existing name
         result = self.service.initialize_profile("test456", self.test_profile_name)
         self.assertFalse(result)
+
+    @patch('subprocess.Popen')
+    def test_launch_all_paths_normal_exe(self, mock_popen):
+        """Test launching normal .exe files."""
+        # Setup mock
+        mock_process = MagicMock()
+        mock_popen.return_value.__enter__.return_value = mock_process
+
+        # Test data
+        paths = ["C:/test/app1.exe", "C:/test/app2.exe"]
+
+        # Execute
+        ProfileService.launch_all_paths_in_profile(paths)
+
+        # Verify
+        self.assertEqual(mock_popen.call_count, 2)
+        mock_popen.assert_any_call([paths[0]])
+        mock_popen.assert_any_call([paths[1]])
+        self.assertEqual(mock_process.wait.call_count, 2)
+
+    @patch('subprocess.Popen')
+    def test_launch_all_paths_rdp_bat(self, mock_popen):
+        """Test launching .rdp and .bat files."""
+        # Setup mock
+        mock_process = MagicMock()
+        mock_popen.return_value.__enter__.return_value = mock_process
+
+        # Test data
+        paths = ["C:/test/script.bat", "C:/test/remote.rdp"]
+
+        # Execute
+        ProfileService.launch_all_paths_in_profile(paths)
+
+        # Verify
+        self.assertEqual(mock_popen.call_count, 2)
+        mock_popen.assert_any_call(paths[0], shell=True)
+        mock_popen.assert_any_call(paths[1], shell=True)
+        self.assertEqual(mock_process.wait.call_count, 2)
+
+    @patch('subprocess.Popen')
+    @patch('builtins.print')
+    def test_launch_all_paths_error(self, mock_print, mock_popen):
+        """Test handling of subprocess errors."""
+        # Setup mock to raise an error
+        mock_popen.side_effect = subprocess.CalledProcessError(1, "test")
+
+        # Test data
+        paths = ["C:/test/error.exe"]
+
+        # Execute
+        ProfileService.launch_all_paths_in_profile(paths)
+
+        # Verify error was handled and printed
+        mock_print.assert_called_once()
  
